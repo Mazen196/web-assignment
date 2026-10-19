@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>People Table</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Georgia, "Times New Roman", serif;
+      background: #eef2f3;
+      color: #1c2b2d;
+      margin: 0;
+      padding: 32px 16px;
+    }
+    main { max-width: 720px; margin: 0 auto; }
+    h1 { margin: 0 0 16px; font-size: 1.6rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+    input[type="search"] {
+      flex: 1 1 220px;
+      padding: 10px 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      border: 1px solid #9fb2b6;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 14px;
+      font-size: 1rem;
+      font-family: inherit;
+      background: #1f5f6b;
+      color: #fff;
+      border: 0;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover { background: #17484f; }
+    input:focus, button:focus-visible { outline: 3px solid #7fb7c4; outline-offset: 2px; }
+    .table-wrap { overflow-x: auto; background: #fff; border: 1px solid #c5d3d6; border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid #e1e9ea; }
+    th { background: #dfeaec; }
+    tr:last-child td { border-bottom: 0; }
+    #empty { padding: 16px; color: #5b6f72; display: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>People</h1>
+
+    <div class="controls">
+      <input type="search" id="search" placeholder="Search by name, age or city" aria-label="Search">
+      <button id="sortName">Sort by name</button>
+      <button id="sortAge">Sort by age</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Age</th><th>City</th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div id="empty">No results found. Try a different search.</div>
+    </div>
+  </main>
+
+  <script>
+    // Array of objects
+    const people = [
+      { name: "Ahmed Hassan", age: 24, city: "Cairo" },
+      { name: "Sara Ali", age: 31, city: "Alexandria" },
+      { name: "Omar Khaled", age: 19, city: "Giza" },
+      { name: "Mona Ibrahim", age: 28, city: "Cairo" },
+      { name: "Youssef Adel", age: 35, city: "Mansoura" },
+      { name: "Nour Samir", age: 22, city: "Aswan" },
+      { name: "Laila Mahmoud", age: 40, city: "Luxor" },
+      { name: "Karim Tarek", age: 27, city: "Tanta" }
+    ];
+
+    const tbody = document.getElementById("tbody");
+    const searchBox = document.getElementById("search");
+    const emptyMsg = document.getElementById("empty");
+
+    // Build the table rows with JavaScript
+    function renderTable(list) {
+      tbody.innerHTML = "";
+      for (const person of list) {
+        const row = document.createElement("tr");
+        for (const value of [person.name, person.age, person.city]) {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.appendChild(cell);
+        }
+        tbody.appendChild(row);
+      }
+      emptyMsg.style.display = list.length === 0 ? "block" : "none";
+    }
+
+    // Filter by the search text, then draw the table
+    function update() {
+      const q = searchBox.value.trim().toLowerCase();
+      const filtered = people.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        String(p.age).includes(q) ||
+        p.city.toLowerCase().includes(q)
+      );
+      renderTable(filtered);
+    }
+
+    // Filter while typing (no button needed)
+    searchBox.addEventListener("input", update);
+
+    // Sort the main array, then redraw (keeps the current search)
+    document.getElementById("sortName").addEventListener("click", () => {
+      people.sort((a, b) => a.name.localeCompare(b.name));
+      update();
+    });
+
+    document.getElementById("sortAge").addEventListener("click", () => {
+      people.sort((a, b) => a.age - b.age);
+      update();
+    });
+
+    update();
+  </script>
+</body>
+</html>

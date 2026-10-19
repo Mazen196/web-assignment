@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registration Form</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Georgia, "Times New Roman", serif;
+      background: #eef2f3;
+      color: #1c2b2d;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    form {
+      background: #fff;
+      width: 100%;
+      max-width: 420px;
+      padding: 32px;
+      border: 1px solid #c5d3d6;
+      border-radius: 6px;
+    }
+    h1 { margin: 0 0 4px; font-size: 1.6rem; }
+    p.sub { margin: 0 0 24px; color: #5b6f72; }
+    .field { margin-bottom: 18px; }
+    label { display: block; font-weight: bold; margin-bottom: 6px; }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 1rem;
+      border: 1px solid #9fb2b6;
+      border-radius: 4px;
+      font-family: inherit;
+    }
+    input:focus { outline: 3px solid #7fb7c4; outline-offset: 1px; }
+    input.invalid { border-color: #b3261e; }
+    input.valid { border-color: #2e7d4f; }
+    .error { color: #b3261e; font-size: 0.9rem; margin-top: 5px; min-height: 1.1em; }
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      background: #1f5f6b;
+      color: #fff;
+      border: 0;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover { background: #17484f; }
+    button:focus-visible { outline: 3px solid #7fb7c4; outline-offset: 2px; }
+    #success { display: none; margin-top: 16px; padding: 12px; background: #e3f3e9; color: #1d5e3a; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <!-- novalidate turns off the browser's own validation so ours is used -->
+  <form id="regForm" novalidate>
+    <h1>Create an account</h1>
+    <p class="sub">Fill in all the fields below.</p>
+
+    <div class="field">
+      <label for="name">Name</label>
+      <input type="text" id="name" autocomplete="name">
+      <div class="error" id="nameError"></div>
+    </div>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input type="email" id="email" autocomplete="email">
+      <div class="error" id="emailError"></div>
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <input type="password" id="password" autocomplete="new-password">
+      <div class="error" id="passwordError"></div>
+    </div>
+
+    <div class="field">
+      <label for="confirm">Confirm password</label>
+      <input type="password" id="confirm" autocomplete="new-password">
+      <div class="error" id="confirmError"></div>
+    </div>
+
+    <div class="field">
+      <label for="age">Age</label>
+      <input type="number" id="age">
+      <div class="error" id="ageError"></div>
+    </div>
+
+    <button type="submit">Register</button>
+    <div id="success">Registration successful!</div>
+  </form>
+
+  <script>
+    const form = document.getElementById("regForm");
+
+    // Shows (or clears) the error message under a field
+    function setError(id, message) {
+      const input = document.getElementById(id);
+      document.getElementById(id + "Error").textContent = message;
+      input.classList.toggle("invalid", message !== "");
+      input.classList.toggle("valid", message === "");
+    }
+
+    // Each function returns an error message, or "" if the value is fine
+    function checkName() {
+      const v = document.getElementById("name").value.trim();
+      if (v === "") return "Name is required.";
+      if (v.length < 2) return "Name must be at least 2 characters.";
+      return "";
+    }
+
+    function checkEmail() {
+      const v = document.getElementById("email").value.trim();
+      if (v === "") return "Email is required.";
+      const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!pattern.test(v)) return "Enter a valid email like name@example.com.";
+      return "";
+    }
+
+    function checkPassword() {
+      const v = document.getElementById("password").value;
+      if (v === "") return "Password is required.";
+      if (v.length < 8) return "Password must be at least 8 characters.";
+      if (!/[0-9]/.test(v)) return "Password must contain at least one number.";
+      return "";
+    }
+
+    function checkConfirm() {
+      const v = document.getElementById("confirm").value;
+      if (v === "") return "Please confirm your password.";
+      if (v !== document.getElementById("password").value) return "Passwords do not match.";
+      return "";
+    }
+
+    function checkAge() {
+      const v = document.getElementById("age").value;
+      if (v === "") return "Age is required.";
+      const n = Number(v);
+      if (!Number.isInteger(n)) return "Age must be a whole number.";
+      if (n < 18 || n > 120) return "Age must be between 18 and 120.";
+      return "";
+    }
+
+    const checks = {
+      name: checkName,
+      email: checkEmail,
+      password: checkPassword,
+      confirm: checkConfirm,
+      age: checkAge
+    };
+
+    form.addEventListener("submit", function (event) {
+      let allValid = true;
+
+      for (const id in checks) {
+        const message = checks[id]();
+        setError(id, message);
+        if (message !== "") allValid = false;
+      }
+
+      // Stop the form from being sent if any field is invalid
+      if (!allValid) {
+        event.preventDefault();
+        document.getElementById("success").style.display = "none";
+        return;
+      }
+
+      // All fields are valid. Demo only: show a message instead of sending.
+      event.preventDefault();
+      document.getElementById("success").style.display = "block";
+    });
+
+    // Re-check a field live once the user leaves it or edits it after an error
+    for (const id in checks) {
+      const input = document.getElementById(id);
+      input.addEventListener("blur", () => setError(id, checks[id]()));
+      input.addEventListener("input", () => {
+        if (input.classList.contains("invalid")) setError(id, checks[id]());
+      });
+    }
+  </script>
+</body>
+</html>
